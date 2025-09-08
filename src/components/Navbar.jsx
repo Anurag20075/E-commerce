@@ -28,12 +28,12 @@ function Navbar() {
             <Link to="/categories" className="hover:text-slate-900">
               Products
             </Link>
-            <a href="#howitworks" className="hover:text-slate-900">
-              How it works
-            </a>
-            <a href="#templates" className="hover:text-slate-900">
-              Templates
-            </a>
+            <Link to="/how-it-works" className="hover:text-slate-900">
+              \r How it works
+            </Link>
+            <Link to="/templates" className="hover:text-slate-900">
+              \r Templates
+            </Link>
           </nav>
         </div>
         <div className="flex items-center gap-4">
