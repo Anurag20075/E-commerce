@@ -1,1 +1,109 @@
 @import "tailwindcss";
+
+/* CMYK Color Palette */
+:root {
+  --cyan: #00bcd4;
+  --magenta: #e91e63;
+  --yellow: #ffeb3b;
+  --cmyk-black: #1a1a1a;
+}
+
+/* Custom Tailwind Colors */
+.text-cyan-500 { color: var(--cyan); }
+.bg-cyan-500 { background-color: var(--cyan); }
+.border-cyan-500 { border-color: var(--cyan); }
+.hover\:bg-cyan-600:hover { background-color: #0097a7; }
+.focus\:ring-cyan-500:focus { --tw-ring-color: var(--cyan); }
+
+.text-magenta-500 { color: var(--magenta); }
+.bg-magenta-500 { background-color: var(--magenta); }
+.border-magenta-500 { border-color: var(--magenta); }
+
+.text-yellow-400 { color: var(--yellow); }
+.bg-yellow-400 { background-color: var(--yellow); }
+.border-yellow-400 { border-color: var(--yellow); }
+
+/* Price Range Slider Styling */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(to right, var(--cyan), var(--magenta));
+  outline: none;
+  border-radius: 15px;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid var(--cyan);
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid var(--cyan);
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+/* Hover effects for CMYK theme */
+.hover\:border-cyan-200:hover {
+  border-color: #80deea;
+}
+
+.group-hover\:text-cyan-600 {
+  transition: color 0.2s ease;
+}
+
+.group:hover .group-hover\:text-cyan-600 {
+  color: #0277bd;
+}
+
+/* Loading animation improvements */
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+.animate-pulse {
+  animation: shimmer 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+}
+
+/* Confetti animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-10px) rotate(90deg); }
+  50% { transform: translateY(-5px) rotate(180deg); }
+  75% { transform: translateY(-15px) rotate(270deg); }
+}
+
+.animate-bounce {
+  animation: float 2s ease-in-out infinite;
+}

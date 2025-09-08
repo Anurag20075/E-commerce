@@ -8,12 +8,21 @@ import Footer from "./components/Footer";
 import CartPage from "./components/CartPage";
 import CheckoutPage from "./components/CheckoutPage";
 import OrderConfirmationPage from "./components/OrderConfirmationPage";
+import SearchResultsPage from "./components/SearchResultsPage";
 
 function App() {
   return (
     <Router>
       <Navbar />
       <Routes>
+        <Route path="/" element={<Header />} />
+        <Route path="/categories" element={<Categories />} />
+        <Route path="/search" element={<SearchResultsPage />} />
+        <Route path="/product/:id" element={<DetailedWrapper />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+        {/* Commented routes for reference */}
         {/* <Route path="/" element={<Header />} /> */}
         {/* <Route path="/" element={<CartPage />} /> */}
         {/* <Route path="/" element={<CheckoutPage />} /> */}
