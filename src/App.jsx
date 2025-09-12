@@ -9,6 +9,7 @@ import CartPage from "./components/CartPage";
 import CheckoutPage from "./components/CheckoutPage";
 import OrderConfirmationPage from "./components/OrderConfirmationPage";
 import SearchResultsPage from "./components/SearchResultsPage";
+import ProductCustomizer from "./components/ProductCustomizer";
 
 function App() {
   return (
@@ -22,6 +23,8 @@ function App() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+        <Route path="/customize" element={<ProductCustomizer />} />
+        <Route path="/customize/:productId" element={<ProductCustomizer />} />
         {/* Commented routes for reference */}
         {/* <Route path="/" element={<Header />} /> */}
         {/* <Route path="/" element={<CartPage />} /> */}

@@ -10,16 +10,36 @@
 
 /* Custom Tailwind Colors */
 .text-cyan-500 { color: var(--cyan); }
+.text-cyan-600 { color: #0097a7; }
+.text-cyan-700 { color: #0277bd; }
 .bg-cyan-500 { background-color: var(--cyan); }
+.bg-cyan-600 { background-color: #0097a7; }
+.bg-cyan-700 { background-color: #0277bd; }
+.bg-cyan-100 { background-color: #e0f7ff; }
+.border-cyan-300 { border-color: #4dd0e1; }
+.border-cyan-400 { border-color: #26c6da; }
 .border-cyan-500 { border-color: var(--cyan); }
+.border-cyan-600 { border-color: #0097a7; }
 .hover\:bg-cyan-600:hover { background-color: #0097a7; }
+.hover\:bg-cyan-700:hover { background-color: #0277bd; }
+.hover\:border-cyan-400:hover { border-color: #26c6da; }
+.hover\:border-cyan-600:hover { border-color: #0097a7; }
 .focus\:ring-cyan-500:focus { --tw-ring-color: var(--cyan); }
 
 .text-magenta-500 { color: var(--magenta); }
+.text-magenta-600 { color: #d81b60; }
+.text-magenta-700 { color: #c2185b; }
 .bg-magenta-500 { background-color: var(--magenta); }
+.bg-magenta-600 { background-color: #d81b60; }
+.bg-magenta-700 { background-color: #c2185b; }
+.border-magenta-400 { border-color: #ec407a; }
 .border-magenta-500 { border-color: var(--magenta); }
+.border-magenta-600 { border-color: #d81b60; }
+.hover\:border-magenta-600:hover { border-color: #d81b60; }
+.hover\:to-magenta-700:hover { --tw-gradient-to: #c2185b; }
 
 .text-yellow-400 { color: var(--yellow); }
+.text-yellow-600 { color: #fbc02d; }
 .bg-yellow-400 { background-color: var(--yellow); }
 .border-yellow-400 { border-color: var(--yellow); }
 
