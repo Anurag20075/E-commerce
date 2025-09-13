@@ -31,11 +31,17 @@ function Navbar() {
             <Link to="/customize" className="hover:text-slate-900">
               Customize
             </Link>
+            <Link to="/about" className="hover:text-slate-900">
+              About
+            </Link>
             <Link to="/how-it-works" className="hover:text-slate-900">
               How it works
             </Link>
-            <Link to="/templates" className="hover:text-slate-900">
-              Templates
+            <Link to="/faq" className="hover:text-slate-900">
+              FAQ
+            </Link>
+            <Link to="/contact" className="hover:text-slate-900">
+              Contact
             </Link>
           </nav>
         </div>

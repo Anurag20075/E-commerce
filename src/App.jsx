@@ -10,7 +10,9 @@ import CheckoutPage from "./components/CheckoutPage";
 import OrderConfirmationPage from "./components/OrderConfirmationPage";
 import SearchResultsPage from "./components/SearchResultsPage";
 import ProductCustomizer from "./components/ProductCustomizer";
-
+import AboutUsPage from "./components/AboutUsPage";
+import FAQPage from "./components/FAQPage";
+import ContactPage from "./components/ContactPage";
 function App() {
   return (
     <Router>
@@ -25,6 +27,9 @@ function App() {
         <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
         <Route path="/customize" element={<ProductCustomizer />} />
         <Route path="/customize/:productId" element={<ProductCustomizer />} />
+        <Route path="/about" element={<AboutUsPage />} />
+        <Route path="/faq" element={<FAQPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         {/* Commented routes for reference */}
         {/* <Route path="/" element={<Header />} /> */}
         {/* <Route path="/" element={<CartPage />} /> */}
