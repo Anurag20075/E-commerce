@@ -1,0 +1,283 @@
+import { useEffect, useMemo, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { Banknote, CalendarClock, ChevronRight, CreditCard, PackageCheck, Truck } from "lucide-react"
+import toast from "react-hot-toast"
+import api from "../api/axiosInstance"
+import getApiErrorMessage from "../utils/getApiErrorMessage"
+import {
+  formatCurrency,
+  formatOrderDate,
+  getEstimatedDeliveryDate,
+  getProgressPercent,
+  getStatusMeta,
+  getTimelineSteps
+} from "../utils/orderTracking"
+
+const getStepClasses = (state) => {
+  if (state === "done") {
+    return {
+      dot: "bg-rose-600 border-rose-600",
+      text: "text-rose-700"
+    }
+  }
+
+  if (state === "active") {
+    return {
+      dot: "bg-white border-rose-600 ring-4 ring-rose-100",
+      text: "text-slate-900"
+    }
+  }
+
+  if (state === "canceled") {
+    return {
+      dot: "bg-rose-600 border-rose-600",
+      text: "text-rose-700"
+    }
+  }
+
+  if (state === "blocked") {
+    return {
+      dot: "bg-slate-200 border-slate-200",
+      text: "text-slate-400"
+    }
+  }
+
+  return {
+    dot: "bg-white border-slate-300",
+    text: "text-slate-500"
+  }
+}
+
+const getPaymentBadge = (paymentMethod, paymentState) => {
+  if (paymentMethod === "Cash on Delivery") {
+    return {
+      label: "Cash on Delivery",
+      icon: Banknote,
+      className: "bg-amber-50 text-amber-700 border-amber-200"
+    }
+  }
+  if (paymentMethod === "Online (Razorpay)") {
+    return {
+      label: `Online - ${paymentState || "Paid"}`,
+      icon: CreditCard,
+      className: "bg-emerald-50 text-emerald-700 border-emerald-200"
+    }
+  }
+  return null
+}
+
+const Orders = ({ refreshCartCount }) => {
+  const [orders, setOrders] = useState([])
+  const [loadingOrders, setLoadingOrders] = useState(true)
+  const [errorMessage, setErrorMessage] = useState("")
+  const [reorderingOrderId, setReorderingOrderId] = useState(null)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    document.title = "My Orders | Urban Threads"
+  }, [])
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setLoadingOrders(true)
+        setErrorMessage("")
+        const response = await api.get("/orders")
+        setOrders(response.data || [])
+      } catch (error) {
+        console.log("Failed to fetch orders:", error.response?.data || error.message)
+        setErrorMessage(getApiErrorMessage(error, "Failed to load your orders."))
+      } finally {
+        setLoadingOrders(false)
+      }
+    }
+
+    fetchOrders()
+  }, [])
+
+  const sortedOrders = useMemo(
+    () =>
+      [...orders].sort(
+        (left, right) => new Date(right.createdAt || 0).getTime() - new Date(left.createdAt || 0).getTime()
+      ),
+    [orders]
+  )
+
+  const canReorder = (status) => ["DELIVERED", "CANCELED"].includes(String(status || "").toUpperCase())
+
+  const handleReorder = async (event, orderId) => {
+    event.stopPropagation()
+
+    try {
+      setReorderingOrderId(orderId)
+      const response = await api.post(`/orders/${orderId}/reorder`)
+      if (refreshCartCount) {
+        await refreshCartCount()
+      }
+      toast.success(response.data || "Items added to cart")
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Reorder failed"))
+    } finally {
+      setReorderingOrderId(null)
+    }
+  }
+
+  return (
+    <div className="page-wrap animate-fadeIn">
+      <div className="page-accent page-accent--left" />
+      <div className="page-accent page-accent--right" />
+
+      <div className="mx-auto w-full max-w-[1200px] space-y-4 px-3 py-4 sm:space-y-6 sm:px-4 sm:py-6 md:px-6 md:py-10 lg:px-8">
+        <div className="surface-card rounded-3xl p-5 md:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-rose-700">
+            Order Tracking
+          </p>
+          <h1 className="mt-1 font-display text-2xl font-bold text-slate-900 sm:text-3xl">My Orders</h1>
+          <p className="mt-2 text-sm text-slate-600">
+            Monitor live order status, shipping progress, and delivery timeline.
+          </p>
+        </div>
+
+        {loadingOrders ? (
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="surface-card animate-pulse rounded-2xl p-5">
+                <div className="h-5 w-48 rounded bg-slate-200" />
+                <div className="mt-3 h-3 w-full rounded bg-slate-200" />
+                <div className="mt-4 h-4 w-64 rounded bg-slate-200" />
+              </div>
+            ))}
+          </div>
+        ) : errorMessage ? (
+          <div className="surface-card rounded-3xl p-10 text-center text-rose-700">{errorMessage}</div>
+        ) : sortedOrders.length === 0 ? (
+          <div className="surface-card rounded-3xl p-10 text-center text-slate-600">
+            You have not placed any orders yet.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {sortedOrders.map((order) => {
+              const statusMeta = getStatusMeta(order.status)
+              const timelineSteps = getTimelineSteps(order.status)
+              const progressPercent = getProgressPercent(order.status)
+              const itemCount = (order.items || []).reduce((sum, item) => sum + (item.quantity || 0), 0)
+              const estimatedDelivery = getEstimatedDeliveryDate(order.createdAt, order.status)
+
+              return (
+                <div
+                  key={order.orderId}
+                  onClick={() => navigate(`/orders/${order.orderId}`)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault()
+                      navigate(`/orders/${order.orderId}`)
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className="surface-card w-full rounded-2xl p-4 text-left transition hover:-translate-y-0.5 hover:shadow-xl sm:p-5"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <h2 className="font-display text-lg font-bold text-slate-900 sm:text-xl">Order #{order.orderId}</h2>
+                      <p className="mt-1 inline-flex items-center gap-1 text-xs text-slate-500">
+                        <CalendarClock size={13} />
+                        Placed on {formatOrderDate(order.createdAt)}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col items-start gap-1.5 sm:items-end">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span
+                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${statusMeta.badgeClass}`}
+                        >
+                          {statusMeta.label}
+                        </span>
+                        {(() => {
+                          const pb = getPaymentBadge(order.paymentMethod, order.paymentState)
+                          if (!pb) return null
+                          const Icon = pb.icon
+                          return (
+                            <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold ${pb.className}`}>
+                              <Icon size={11} />
+                              {pb.label}
+                            </span>
+                          )
+                        })()}
+                      </div>
+                      <p className="font-display text-xl font-bold text-rose-700 sm:text-2xl">
+                        {formatCurrency(order.totalAmount)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <div className="mb-2 h-2 overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-rose-500 to-amber-500 transition-all duration-500"
+                        style={{ width: `${progressPercent}%` }}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-4 sm:gap-3">
+                      {timelineSteps.map((step) => {
+                        const classes = getStepClasses(step.state)
+                        return (
+                          <div key={step.key} className="flex items-center gap-2">
+                            <span className={`h-2.5 w-2.5 rounded-full border ${classes.dot}`} />
+                            <span className={`text-[10px] font-semibold uppercase tracking-[0.1em] sm:text-[11px] sm:tracking-[0.12em] ${classes.text}`}>
+                              {step.label}
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-col items-start gap-2 border-t border-[var(--border)] pt-4 text-sm sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="inline-flex items-center gap-2 text-slate-600">
+                        <PackageCheck size={15} className="text-rose-700" />
+                        {itemCount} item{itemCount === 1 ? "" : "s"}
+                      </p>
+
+                      {estimatedDelivery ? (
+                        <p className="inline-flex items-center gap-2 text-slate-600">
+                          <Truck size={15} className="text-rose-700" />
+                          ETA {estimatedDelivery}
+                        </p>
+                      ) : (
+                        <p className="text-slate-500">Delivery timeline updated in order details</p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      {canReorder(order.status) && (
+                        <button
+                          onClick={(event) => handleReorder(event, order.orderId)}
+                          disabled={reorderingOrderId === order.orderId}
+                          className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {reorderingOrderId === order.orderId ? "Reordering..." : "Reorder"}
+                        </button>
+                      )}
+                      <span className="inline-flex items-center gap-1 font-semibold text-rose-700">
+                        View details
+                        <ChevronRight size={15} />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default Orders
+
+
+
