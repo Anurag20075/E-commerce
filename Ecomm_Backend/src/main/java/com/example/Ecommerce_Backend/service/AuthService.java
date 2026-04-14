@@ -57,16 +57,24 @@ public class AuthService {
         userEntity.setName(request.getName());
         userEntity.setEmail(request.getEmail());
         userEntity.setPassword(passwordEncoder.encode(request.getPassword()));
-        userEntity.setRole(Role.USER);
+        Role userRole;
+        try {
+            userRole = Role.valueOf(request.getRole().toUpperCase());
+        } catch (Exception e) {
+            userRole = Role.USER;
+        }
 
+        userEntity.setRole(userRole);
         userRepository.save(userEntity);
+
         String token = jwtService.generateToken(userEntity);
         String refreshToken = issueRefreshToken(userEntity);
 
         return AuthResponseDTO.builder()
                 .token(token)
                 .refreshToken(refreshToken)
-                .role(Role.USER)
+                // --- FIX 2: Return the actual role saved ---
+                .role(userEntity.getRole())
                 .build();
     }
 
@@ -74,7 +82,7 @@ public class AuthService {
         UserEntity user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid Credentials"));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new InvalidCredentialsException("Invalid Credentials");
         }
 
@@ -122,7 +130,8 @@ public class AuthService {
 
         LocalDateTime now = LocalDateTime.now();
         if (user.getResetPasswordOtpRequestedAt() != null &&
-                user.getResetPasswordOtpRequestedAt().plusSeconds(RESET_PASSWORD_OTP_RESEND_COOLDOWN_SECONDS).isAfter(now)) {
+                user.getResetPasswordOtpRequestedAt().plusSeconds(RESET_PASSWORD_OTP_RESEND_COOLDOWN_SECONDS)
+                        .isAfter(now)) {
             return ForgotPasswordResponseDTO.builder()
                     .message(genericMessage)
                     .build();
@@ -140,8 +149,7 @@ public class AuthService {
                     user.getEmail(),
                     user.getName(),
                     otp,
-                    RESET_PASSWORD_OTP_EXPIRATION_MINUTES
-            );
+                    RESET_PASSWORD_OTP_EXPIRATION_MINUTES);
             return ForgotPasswordResponseDTO.builder()
                     .message(genericMessage)
                     .build();
